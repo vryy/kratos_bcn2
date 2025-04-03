@@ -545,6 +545,14 @@ public:
         return true;
     }
 
+    virtual bool SumAll(IndexType& rValue) const
+    {
+        // #if defined(KRATOS_USING_MPI )
+        //  std::cout << "WARNING: Using serial communicator with MPI defined. Use ModelPart::SetCommunicator to set its communicator to MPICommunicator" << std::endl;
+        // #endif
+        return true;
+    }
+
     virtual bool SumAll(DataType& rValue) const
     {
         // #if defined(KRATOS_USING_MPI )
@@ -561,6 +569,14 @@ public:
         return true;
     }
 
+    virtual bool MinAll(IndexType& rValue) const
+    {
+        // #if defined(KRATOS_USING_MPI )
+        //  std::cout << "WARNING: Using serial communicator with MPI defined. Use ModelPart::SetCommunicator to set its communicator to MPICommunicator" << std::endl;
+        // #endif
+        return true;
+    }
+
     virtual bool MinAll(DataType& rValue) const
     {
         // #if defined(KRATOS_USING_MPI )
@@ -570,6 +586,14 @@ public:
     }
 
     virtual bool MaxAll(int& rValue) const
+    {
+        /*#if defined(KRATOS_USING_MPI )
+                std::cout << "WARNING: Using serial communicator with MPI defined. Use ModelPart::SetCommunicator to set its communicator to MPICommunicator" << std::endl;
+        #endif*/
+        return true;
+    }
+
+    virtual bool MaxAll(IndexType& rValue) const
     {
         /*#if defined(KRATOS_USING_MPI )
                 std::cout << "WARNING: Using serial communicator with MPI defined. Use ModelPart::SetCommunicator to set its communicator to MPICommunicator" << std::endl;

@@ -129,9 +129,9 @@ public:
 
     typedef TVectorType VectorType;
 
-    typedef std::size_t IndexType;
+    typedef KRATOS_INDEX_TYPE IndexType;
 
-    typedef std::size_t SizeType;
+    typedef KRATOS_SIZE_TYPE SizeType;
 
     typedef typename boost::shared_ptr< TMatrixType > MatrixPointerType;
     typedef typename boost::shared_ptr< TVectorType > VectorPointerType;

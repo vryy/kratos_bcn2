@@ -98,9 +98,9 @@ public:
 
     typedef TDofType DofType;
 
-    typedef std::size_t IndexType;
+    typedef KRATOS_INDEX_TYPE IndexType;
 
-    typedef typename std::size_t SizeType;
+    typedef KRATOS_SIZE_TYPE SizeType;
 
     typedef PointerVectorSet<TDofType, GetDofKey> DofsContainerType;
 

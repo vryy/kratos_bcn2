@@ -74,10 +74,13 @@ public:
     typedef Geometry<NodeType> GeometryType;
 
     /// Defines the index type
-    typedef std::size_t IndexType;
+    typedef IndexedObject::IndexType IndexType;
 
     /// Defines the result type
-    typedef std::size_t result_type;
+    typedef IndexedObject::result_type result_type;
+
+    /// Defines the size type
+    typedef IndexedObject::result_type SizeType;
 
     ///@}
     ///@name Life Cycle

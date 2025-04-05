@@ -120,6 +120,25 @@ else()
     add_definitions(-DKRATOS_SD_REF_NUMBER_2)
 endif()
 ################################
+# selector for data type for indexing
+# Theoretically, IndexType span should be equal or larger than that of SizeType
+if(DEFINED KRATOS_INDEX_TYPE)
+    add_compile_definitions(KRATOS_INDEX_TYPE=${KRATOS_INDEX_TYPE})
+    message("Kratos will be compiled with index type = " ${KRATOS_INDEX_TYPE})
+else()
+    add_compile_definitions(KRATOS_INDEX_TYPE=std::size_t)
+    message("Kratos will be compiled with index type = std::size_t" )
+endif()
+
+# selector for data type for size of the problem
+if(DEFINED KRATOS_SIZE_TYPE)
+    add_compile_definitions(KRATOS_SIZE_TYPE=${KRATOS_SIZE_TYPE})
+    message("Kratos will be compiled with size type = " ${KRATOS_SIZE_TYPE})
+else()
+    add_compile_definitions(KRATOS_SIZE_TYPE=std::size_t)
+    message("Kratos will be compiled with size type = std::size_t" )
+endif()
+
 # selector for double type
 if(DEFINED KRATOS_DOUBLE_TYPE)
     add_compile_definitions(KRATOS_DOUBLE_TYPE=${KRATOS_DOUBLE_TYPE})

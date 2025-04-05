@@ -89,15 +89,17 @@ public:
 
     typedef Matrix MatrixType;
 
-    typedef std::size_t IndexType;
 
-    typedef std::size_t SizeType;
+
+    typedef BaseType::IndexType IndexType;
+
+    typedef BaseType::SizeType SizeType;
 
     typedef typename NodeType::DofType DofType;
 
     typedef typename DofType::DataType DataType;
 
-    typedef std::vector<std::size_t> EquationIdVectorType;
+    typedef std::vector<IndexType> EquationIdVectorType;
 
     typedef std::vector<typename DofType::Pointer> DofsVectorType;
 

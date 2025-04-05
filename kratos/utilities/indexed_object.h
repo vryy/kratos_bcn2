@@ -98,9 +98,9 @@ public:
     /// Pointer definition of IndexedObject
     KRATOS_CLASS_POINTER_DEFINITION(IndexedObject);
 
-    typedef std::size_t IndexType;
+    typedef KRATOS_INDEX_TYPE IndexType;
 
-    typedef std::size_t result_type;
+    typedef KRATOS_SIZE_TYPE result_type;
 
     ///@}
     ///@name Life Cycle

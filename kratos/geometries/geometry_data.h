@@ -163,13 +163,13 @@ public:
     point or integration point access methods and also all other
     methods which need point or integration point index.
     */
-    typedef std::size_t IndexType;
+    typedef KRATOS_INDEX_TYPE IndexType;
 
     /** This typed used to return size or dimension in
     geometry data. Dimension, WorkingSpaceDimension, PointsNumber and
     ... return this type as their results.
     */
-    typedef std::size_t SizeType;
+    typedef KRATOS_SIZE_TYPE SizeType;
 
     /** This type used for representing an integration point in
     geometry data. This integration point is a point with an

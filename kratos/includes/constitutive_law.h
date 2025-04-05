@@ -91,7 +91,7 @@ public:
      */
     typedef ProcessInfo ProcessInfoType;
     typedef Geometry<Node < 3 > > GeometryType;
-    typedef std::size_t SizeType;
+    typedef KRATOS_SIZE_TYPE SizeType;
     typedef KRATOS_DOUBLE_TYPE DataType;
 
     typedef Vector StrainVectorType;

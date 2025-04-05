@@ -100,11 +100,11 @@ public:
     /// Pointer definition of Dof
     KRATOS_CLASS_POINTER_DEFINITION(Dof);
 
-    typedef std::size_t IndexType;
+    typedef IndexedObject::IndexType IndexType;
 
     typedef TDataType DataType;
 
-    typedef std::size_t EquationIdType;
+    typedef IndexType EquationIdType;
 
     typedef VariablesListDataValueContainer SolutionStepsDataContainerType;
 

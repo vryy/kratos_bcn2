@@ -107,17 +107,17 @@ public:
      */
     typedef typename TPointType::DataType DataType;
 
-    /** Type used for indexing in geometry class.std::size_t used for indexing
+    /** Type used for indexing in geometry class. KRATOS_INDEX_TYPE used for indexing
     point or integration point access methods and also all other
     methods which need point or integration point index.
     */
-    typedef std::size_t IndexType;
+    typedef KRATOS_INDEX_TYPE IndexType;
 
     /** This typed used to return size or dimension in
     geometry. Dimension, WorkingDimension, PointsNumber and
     ... return this type as their results.
     */
-    typedef std::size_t SizeType;
+    typedef KRATOS_SIZE_TYPE SizeType;
 
     /** The data type for coordinates
      */

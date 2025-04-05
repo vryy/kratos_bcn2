@@ -1,57 +1,22 @@
-/*
-==============================================================================
-Kratos
-A General Purpose Software for Multi-Physics Finite Element Analysis
-Version 1.0 (Released on march 05, 2007).
-
-Copyright 2007
-Pooyan Dadvand, Riccardo Rossi
-pooyan@cimne.upc.edu
-rrossi@cimne.upc.edu
-CIMNE (International Center for Numerical Methods in Engineering),
-Gran Capita' s/n, 08034 Barcelona, Spain
-
-Permission is hereby granted, free  of charge, to any person obtaining
-a  copy  of this  software  and  associated  documentation files  (the
-"Software"), to  deal in  the Software without  restriction, including
-without limitation  the rights to  use, copy, modify,  merge, publish,
-distribute,  sublicense and/or  sell copies  of the  Software,  and to
-permit persons to whom the Software  is furnished to do so, subject to
-the following condition:
-
-Distribution of this code for  any  commercial purpose  is permissible
-ONLY BY DIRECT ARRANGEMENT WITH THE COPYRIGHT OWNER.
-
-The  above  copyright  notice  and  this permission  notice  shall  be
-included in all copies or substantial portions of the Software.
-
-THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
-EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT  SHALL THE AUTHORS OR COPYRIGHT HOLDERS  BE LIABLE FOR ANY
-CLAIM, DAMAGES OR  OTHER LIABILITY, WHETHER IN AN  ACTION OF CONTRACT,
-TORT  OR OTHERWISE, ARISING  FROM, OUT  OF OR  IN CONNECTION  WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-==============================================================================
-*/
-
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
 //
-//	 Project Name:		  Kratos
-//	 Last Modified by:	  $Author: rrossi $
-//	 Date:				  $Date: 2007-03-06 10:30:32 $
-//	 Revision:			  $Revision: 1.2 $
+//  License:         BSD License
+//                   Kratos default license: kratos/license.txt
+//
+//  Main authors:    Pooyan Dadvand
+//                   Riccardo Rossi
 //
 //
 
-
-#if	!defined(KRATOS_ARRAY_1D_H_INCLUDED	)
+#if !defined(KRATOS_ARRAY_1D_H_INCLUDED	)
 #define	 KRATOS_ARRAY_1D_H_INCLUDED
 
-
-
 // System includes
-
+#include <initializer_list>
 
 // External	includes
 #include <boost/array.hpp>
@@ -126,29 +91,41 @@ public:
     array_1d ():
         vector_expression<self_type> ()
     {
-        //sin esto no funciona en windows!!
-        //std::fill (data().begin(), data().end(), value_type	());
+        // intentionally does not initialize the contents for performance reasons
     }
+
     explicit BOOST_UBLAS_INLINE
     array_1d (size_type array_size):
         vector_expression<self_type> ()
     {
-        //sin esto no funciona en windows!!
-        //std::fill (data().begin(), data().end(), value_type	());
-
-        /* 				std::fill (data().begin(), data().end(), value_type	()); */
+        // intentionally does not initialize the contents for performance reasons
     }
 
     explicit BOOST_UBLAS_INLINE
     array_1d (size_type array_size, value_type v):
         vector_expression<self_type> ()
     {
-        std::fill (data().begin(), data().begin() + array_size, v);
+        KRATOS_DEBUG_ERROR_IF(array_size>N) << "Given size is greater than the size of the array!" << std::endl;
+
+        std::fill(data().begin(), data().begin() + array_size, v);
+        // intentionally does not initialize the remaining entries for performance reasons
     }
+
+    explicit BOOST_UBLAS_INLINE
+    array_1d (const std::initializer_list<value_type>& rInitList):
+        vector_expression<self_type> ()
+    {
+        KRATOS_DEBUG_ERROR_IF(rInitList.size()>N) << "Size of list greater than the size of the array!" << std::endl;
+
+        std::copy(rInitList.begin(), rInitList.end(), data().begin()); // copy content of initializer list
+        // intentionally does not initialize the remaining entries for performance reasons
+    }
+
     BOOST_UBLAS_INLINE
     array_1d (size_type array_size,	const array_type & rdata):
         vector_expression<self_type> (),
         data_ (rdata) {}
+
     BOOST_UBLAS_INLINE
     array_1d (const array_1d &v):
         vector_expression<self_type> (),
@@ -172,7 +149,6 @@ public:
         boost::numeric::ublas::vector_assign<boost::numeric::ublas::scalar_assign> (*this, ae);
     }
 
-
     ///@}
     ///@name Operators
     ///@{
@@ -181,22 +157,26 @@ public:
     BOOST_UBLAS_INLINE
     const_reference	operator ()	(size_type i) const
     {
+        KRATOS_DEBUG_ERROR_IF(i>=N) << "Index greater than the size of the array - index is i = " << i << std::endl;
         return data_[i];
     }
     BOOST_UBLAS_INLINE
     reference operator () (size_type i)
     {
+        KRATOS_DEBUG_ERROR_IF(i>=N) << "Index greater than the size of the array - index is i = " << i << std::endl;
         return data_[i];
     }
 
     BOOST_UBLAS_INLINE
     const_reference	operator []	(size_type i) const
     {
+        KRATOS_DEBUG_ERROR_IF(i>=N) << "Index greater than the size of the array - index is i = " << i << std::endl;
         return data_[i];
     }
     BOOST_UBLAS_INLINE
     reference operator [] (size_type i)
     {
+        KRATOS_DEBUG_ERROR_IF(i>=N) << "Index greater than the size of the array - index is i = " << i << std::endl;
         return data_[i];
     }
 
@@ -238,6 +218,17 @@ public:
     {
         vector_assign_scalar<scalar_divides_assign> (*this, at); //included for ublas 1.33.1
         return *this;
+    }
+
+    /**
+     * @brief Compares whether this array_1d is equal to the given array_1d.
+     * @param v the array_1d to compare to
+     * @return true if the two arrays are equal, false otherwise
+     */
+    BOOST_UBLAS_INLINE
+    bool operator == (const array_1d &v) const
+    {
+        return std::equal (data_.begin(), data_.end(), v.data_.begin());
     }
 
     ///@}

@@ -4,8 +4,8 @@
 //   _|\_\_|  \__,_|\__|\___/ ____/
 //                   Multi-Physics
 //
-//  License:		 BSD License
-//					 Kratos default license: kratos/license.txt
+//  License:         BSD License
+//                   Kratos default license: kratos/license.txt
 //
 //  Main authors:    Pooyan Dadvand
 //
@@ -52,47 +52,47 @@ namespace Kratos
 ///@}
 ///@name Type Definitions
 ///@{
-    using namespace boost::numeric::ublas;
+
+    /// types for scalar linear algebra
 
     template <typename TDataType> using DenseMatrix = boost::numeric::ublas::matrix<TDataType>;
     template <typename TDataType> using DenseVector = boost::numeric::ublas::vector<TDataType>;
 
-    template <typename TDataType, std::size_t TSize1, std::size_t TSize2> using BoundedMatrix = boost::numeric::ublas::bounded_matrix<TDataType, TSize1, TSize2>;
-    template <typename TDataType, std::size_t TSize> using BoundedVector = boost::numeric::ublas::bounded_vector<TDataType, TSize>;
-
+    template <typename TDataType, KRATOS_SIZE_TYPE TSize1, KRATOS_SIZE_TYPE TSize2> using BoundedMatrix = boost::numeric::ublas::bounded_matrix<TDataType, TSize1, TSize2>;
+    template <typename TDataType, KRATOS_SIZE_TYPE TSize> using BoundedVector = boost::numeric::ublas::bounded_vector<TDataType, TSize>;
 
     typedef boost::numeric::ublas::vector<KRATOS_DOUBLE_TYPE> Vector;
-    typedef unit_vector<KRATOS_DOUBLE_TYPE> UnitVector;
-    typedef zero_vector<KRATOS_DOUBLE_TYPE> ZeroVector;
-    typedef scalar_vector<KRATOS_DOUBLE_TYPE> ScalarVector;
-    //typedef sparse_vector<KRATOS_DOUBLE_TYPE> SparseVector;
-    typedef mapped_vector<KRATOS_DOUBLE_TYPE> SparseVector;
+    typedef boost::numeric::ublas::unit_vector<KRATOS_DOUBLE_TYPE> UnitVector;
+    typedef boost::numeric::ublas::zero_vector<KRATOS_DOUBLE_TYPE> ZeroVector;
+    typedef boost::numeric::ublas::scalar_vector<KRATOS_DOUBLE_TYPE> ScalarVector;
+    typedef boost::numeric::ublas::mapped_vector<KRATOS_DOUBLE_TYPE> SparseVector;
 
-    typedef compressed_vector<KRATOS_DOUBLE_TYPE> CompressedVector;
-    typedef coordinate_vector<KRATOS_DOUBLE_TYPE> CoordinateVector;
-    typedef vector_range<Vector> VectorRange;
-    typedef vector_slice<Vector> VectorSlice;
+    typedef boost::numeric::ublas::compressed_vector<KRATOS_DOUBLE_TYPE> CompressedVector;
+    typedef boost::numeric::ublas::coordinate_vector<KRATOS_DOUBLE_TYPE> CoordinateVector;
+    typedef boost::numeric::ublas::vector_range<Vector> VectorRange;
+    typedef boost::numeric::ublas::vector_slice<Vector> VectorSlice;
 
-    typedef matrix<KRATOS_DOUBLE_TYPE> Matrix;
-    typedef identity_matrix<KRATOS_DOUBLE_TYPE> IdentityMatrix;
-    typedef zero_matrix<KRATOS_DOUBLE_TYPE> ZeroMatrix;
-    typedef scalar_matrix<KRATOS_DOUBLE_TYPE> ScalarMatrix;
-    typedef triangular_matrix<KRATOS_DOUBLE_TYPE> TriangularMatrix;
-    typedef symmetric_matrix<KRATOS_DOUBLE_TYPE> SymmetricMatrix;
-    typedef hermitian_matrix<KRATOS_DOUBLE_TYPE> HermitianMatrix;
-    typedef banded_matrix<KRATOS_DOUBLE_TYPE> BandedMatrix;
-    //typedef sparse_matrix<KRATOS_DOUBLE_TYPE> SparseMatrix;
-    typedef mapped_matrix<KRATOS_DOUBLE_TYPE> SparseMatrix;
-    typedef coordinate_matrix<KRATOS_DOUBLE_TYPE> CoordinateMatrix;
-    typedef matrix_column<Matrix> MatrixColumn;
-    typedef matrix_vector_range<Matrix> MatrixVectorRange;
-    typedef matrix_vector_slice<Matrix> MatrixVectorSlice;
-    typedef matrix_range<Matrix> MatrixRange;
-    typedef matrix_slice<Matrix> MatrixSlice;
-
-    template <typename TExpressionType> using MatrixRow = matrix_row<TExpressionType>;
-
+    typedef boost::numeric::ublas::matrix<KRATOS_DOUBLE_TYPE> Matrix;
+    typedef boost::numeric::ublas::identity_matrix<KRATOS_DOUBLE_TYPE> IdentityMatrix;
+    typedef boost::numeric::ublas::zero_matrix<KRATOS_DOUBLE_TYPE> ZeroMatrix;
+    typedef boost::numeric::ublas::scalar_matrix<KRATOS_DOUBLE_TYPE> ScalarMatrix;
+    typedef boost::numeric::ublas::triangular_matrix<KRATOS_DOUBLE_TYPE> TriangularMatrix;
+    typedef boost::numeric::ublas::symmetric_matrix<KRATOS_DOUBLE_TYPE> SymmetricMatrix;
+    typedef boost::numeric::ublas::hermitian_matrix<KRATOS_DOUBLE_TYPE> HermitianMatrix;
+    typedef boost::numeric::ublas::banded_matrix<KRATOS_DOUBLE_TYPE> BandedMatrix;
+    typedef boost::numeric::ublas::mapped_matrix<KRATOS_DOUBLE_TYPE> SparseMatrix;
+    typedef boost::numeric::ublas::coordinate_matrix<KRATOS_DOUBLE_TYPE> CoordinateMatrix;
     typedef boost::numeric::ublas::compressed_matrix<KRATOS_DOUBLE_TYPE> CompressedMatrix;
+    typedef boost::numeric::ublas::matrix_column<Matrix> MatrixColumn;
+    typedef boost::numeric::ublas::matrix_vector_range<Matrix> MatrixVectorRange;
+    typedef boost::numeric::ublas::matrix_vector_slice<Matrix> MatrixVectorSlice;
+    typedef boost::numeric::ublas::matrix_range<Matrix> MatrixRange;
+    typedef boost::numeric::ublas::matrix_slice<Matrix> MatrixSlice;
+
+    template <typename TExpressionType> using MatrixRow = boost::numeric::ublas::matrix_row<TExpressionType>;
+
+    // declare namespace usage to avoid downstream explosion of compilation errors
+    using namespace boost::numeric::ublas;
 
 ///@}
 ///@name  Enum's
@@ -115,6 +115,8 @@ namespace Kratos
 ///@}
 ///@name Input and output
 ///@{
+
+///@}
 
 }  // namespace Kratos.
 

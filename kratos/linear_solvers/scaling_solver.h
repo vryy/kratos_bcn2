@@ -409,15 +409,15 @@ private:
         {
             row_size= *(row_it+1)-*row_it;
             row_it++;
-            double t = typename TDenseSpaceType::DataType();
+            auto t = typename TDenseSpaceType::DataType();
 
             for(int i = 0; i<row_size; i++)
             {
-                double tmp = *value_begin;
+                auto tmp = *value_begin;
                 t += tmp*tmp;
                 value_begin++;
             }
-            t = sqrt(t);
+            t = std::sqrt(t);
             weights[kkk++] = t;
         }
     }

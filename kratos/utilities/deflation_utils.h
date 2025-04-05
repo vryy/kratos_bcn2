@@ -355,6 +355,9 @@ public:
     //y = Wtranspose*x;
     static void ApplyWtranspose(const std::vector<int>& w, const SparseVectorType& x, SparseVectorType& y)
     {
+        typedef typename SparseVectorType::value_type DataType;
+        typedef typename DataTypeToValueType<DataType>::value_type ValueType;
+
         //first set to zero the destination vector
         #pragma omp parallel for
         for(int i=0; i<static_cast<int>(y.size()); i++)
@@ -367,12 +370,22 @@ public:
             y[w[i]] += x[i];
         }
 #else
-        //now apply the Wtranspose
-        #pragma omp parallel for
-        for(int i=0; i<static_cast<int>(w.size()); i++)
+        if constexpr (std::is_same<DataType, ValueType>::value)
         {
-            #pragma omp atomic
-            y[w[i]] += x[i];
+            //now apply the Wtranspose
+            #pragma omp parallel for
+            for(int i=0; i<static_cast<int>(w.size()); i++)
+            {
+                #pragma omp atomic
+                y[w[i]] += x[i];
+            }
+        }
+        else
+        {
+            for(int i=0; i<static_cast<int>(w.size()); i++)
+            {
+                y[w[i]] += x[i];
+            }
         }
 #endif
     }

@@ -17,10 +17,7 @@
 
 
 // System includes
-#include <string>
-#include <iostream>
 #include <iomanip>
-#include <cstddef>
 #include <numeric>
 #include <type_traits>
 
@@ -125,6 +122,8 @@ public:
 
     typedef TDataType DataType;
 
+    typedef typename DataTypeToValueType<DataType>::value_type ValueType;
+
     typedef TMatrixType MatrixType;
 
     typedef TVectorType VectorType;
@@ -160,12 +159,12 @@ public:
 
     static MatrixPointerType CreateEmptyMatrixPointer()
     {
-        return MatrixPointerType(new TMatrixType());
+        return MatrixPointerType(new TMatrixType(0, 0));
     }
 
     static VectorPointerType CreateEmptyVectorPointer()
     {
-        return VectorPointerType(new TVectorType());
+        return VectorPointerType(new TVectorType(0));
     }
 
     /// return size of vector rV
@@ -333,12 +332,12 @@ public:
             KRATOS_ERROR << __FUNCTION__ << " is not implemented";
     }
 
-    static void Mult(Matrix& rA, VectorType& rX, VectorType& rY)
+    static void Mult(const Matrix& rA, const VectorType& rX, VectorType& rY)
     {
         axpy_prod(rA, rX, rY, true);
     }
 
-    static void Mult(compressed_matrix<TDataType>& rA, VectorType& rX, VectorType& rY)
+    static void Mult(const compressed_matrix<TDataType>& rA, const VectorType& rX, VectorType& rY)
     {
 #ifndef _OPENMP
         axpy_prod(rA, rX, rY, true);
@@ -347,9 +346,10 @@ public:
 #endif
     }
 
-    static void TransposeMult(MatrixType& rA, VectorType& rX, VectorType& rY)
+    template< class TOtherMatrixType >
+    static void TransposeMult(const TOtherMatrixType& rA, const VectorType& rX, VectorType& rY)
     {
-        axpy_prod(rX, rA, rY, true);
+        boost::numeric::ublas::axpy_prod(rX, rA, rY, true);
     } // rY = rAT * rX
 
     static inline SizeType GraphDegree(IndexType i, TMatrixType& A)
@@ -406,7 +406,7 @@ public:
 #else
             const int size = rX.size();
 
-            #pragma omp parallel for
+            #pragma omp parallel for firstprivate(size)
             for (int i = 0; i < size; i++)
                 rX[i] = -rX[i];
 
@@ -419,7 +419,7 @@ public:
 #else
             const int size = rX.size();
 
-            #pragma omp parallel for
+            #pragma omp parallel for firstprivate(size)
             for (int i = 0; i < size; i++)
                 rX[i] *= A;
 #endif
@@ -665,18 +665,18 @@ public:
 
     //***********************************************************************
 
-    inline static TDataType GetValue(const VectorType& x, std::size_t I)
+    inline static TDataType GetValue(const VectorType& x, IndexType I)
     {
         return x[I];
     }
 
     //***********************************************************************
 
-    static void GatherValues(const VectorType& x, const std::vector<std::size_t>& IndexArray, TDataType* pValues)
+    static void GatherValues(const VectorType& x, const std::vector<IndexType>& IndexArray, TDataType* pValues)
     {
         KRATOS_TRY
 
-        for (std::size_t i = 0; i < IndexArray.size(); i++)
+        for (IndexType i = 0; i < IndexArray.size(); i++)
             pValues[i] = x[IndexArray[i]];
 
         KRATOS_CATCH("")
@@ -705,7 +705,7 @@ public:
 
         if (level > 1)
         {
-            std::size_t num_entries = 0;
+            SizeType num_entries = 0;
 
             if constexpr (std::is_same<MatrixType, Matrix>::value)
             {
@@ -772,7 +772,7 @@ public:
 
         if (level > 1)
         {
-            std::size_t num_entries = 0;
+            SizeType num_entries = 0;
             for (t_it it = rX.begin(); it != rX.end(); ++it)
             {
                 if (*it != 0.0)
@@ -823,17 +823,17 @@ public:
     //***********************************************************************
 
     template< class TOtherMatrixType >
-    static bool WriteMatrixMarketMatrix(const char *FileName, TOtherMatrixType &M, bool Symmetric)
+    static bool WriteMatrixMarketMatrix(const char* pFileName, const TOtherMatrixType& rM, const bool Symmetric)
     {
         // Use full namespace in call to make sure we are not calling this function recursively
-        return Kratos::WriteMatrixMarketMatrix(FileName,M,Symmetric);
+        return Kratos::WriteMatrixMarketMatrix(pFileName, rM, Symmetric);
     }
 
     template< class VectorType >
-    static bool WriteMatrixMarketVector(const char *FileName, VectorType& V)
+    static bool WriteMatrixMarketVector(const char* pFileName, const VectorType& rV)
     {
         // Use full namespace in call to make sure we are not calling this function recursively
-        return Kratos::WriteMatrixMarketVector(FileName,V);
+        return Kratos::WriteMatrixMarketVector(pFileName, rV);
     }
 
     ///@}
@@ -847,48 +847,38 @@ protected:
     ///@name Protected static Member Variables
     ///@{
 
-
     ///@}
     ///@name Protected member Variables
     ///@{
-
 
     ///@}
     ///@name Protected Operators
     ///@{
 
-
     ///@}
     ///@name Protected Operations
     ///@{
-
 
     ///@}
     ///@name Protected  Access
     ///@{
 
-
     ///@}
     ///@name Protected Inquiry
     ///@{
-
 
     ///@}
     ///@name Protected LifeCycle
     ///@{
 
-
     ///@}
-
 private:
     ///@name Static Member Variables
     ///@{
 
-
     ///@}
     ///@name Member Variables
     ///@{
-
 
     ///@}
     ///@name Private Operators
@@ -912,7 +902,6 @@ private:
             typename compressed_matrix<TDataType>::index_array_type::const_iterator index_2_begin = A.index2_data().begin()+*row_iter_begin;
             typename compressed_matrix<TDataType>::value_array_type::const_iterator value_begin = A.value_data().begin()+*row_iter_begin;
             //                  typename VectorType::iterator output_vec_begin = out.begin()+partition[thread_id];
-
 
             partial_product_no_add(number_of_rows,
                                    row_iter_begin,
@@ -953,7 +942,6 @@ private:
 
             output_vec[kkk++] = t;
             //                 *output_vec_begin++ = t;
-
         }
     }
 #endif
@@ -1017,6 +1005,7 @@ inline std::ostream& operator << (std::ostream& rOStream,
 
     return rOStream;
 }
+
 ///@}
 
 } // namespace Kratos.

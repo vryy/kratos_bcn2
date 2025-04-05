@@ -87,6 +87,8 @@ public:
 
     typedef TDataType DataType;
 
+    typedef typename DataTypeToValueType<DataType>::value_type ValueType;
+
     typedef TMatrixType MatrixType;
 
     typedef TVectorType VectorType;

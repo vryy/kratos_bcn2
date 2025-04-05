@@ -57,12 +57,14 @@ public:
     /// Pointer definition of DeflatedGMRESSolver
     KRATOS_CLASS_POINTER_DEFINITION (DeflatedGMRESSolver);
     typedef IterativeSolver<TSparseSpaceType, TDenseSpaceType, TPreconditionerType, TReordererType> BaseType;
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
-    typedef typename TSparseSpaceType::VectorType VectorType;
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
-    typedef typename TDenseSpaceType::VectorType DenseVectorType;
-    typedef std::size_t  SizeType;
-    typedef typename BaseType::DataType  DataType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
+    typedef typename BaseType::VectorType VectorType;
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
+    typedef typename BaseType::DenseVectorType DenseVectorType;
+    typedef typename BaseType::SizeType SizeType;
+    typedef typename BaseType::IndexType IndexType;
+    typedef typename BaseType::DataType DataType;
+    typedef typename BaseType::ValueType ValueType;
     typedef DeflationUtils<SparseMatrixType, VectorType> DeflationUtilsType;
 
     ///@}
@@ -70,7 +72,7 @@ public:
     ///@{
     /// Default constructor.
     DeflatedGMRESSolver (typename LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType>::Pointer pred_solver,
-                         DataType NewMaxTolerance,
+                         ValueType NewMaxTolerance,
                          unsigned int NewMaxIterationsNumber,
                          unsigned int m, unsigned int max_reduced_size
                         ) : BaseType (NewMaxTolerance, NewMaxIterationsNumber)
@@ -121,15 +123,14 @@ public:
     */
     virtual void Initialize (SparseMatrixType& rA, VectorType& rX, VectorType& rB)
     {
-    if (mBlocksAreAllocated == true)
-    {
-
-        mis_initialized = true;
-    }
-    else
-    {
-      std::cout << "linear solver intialization is deferred to the moment at which blocks are available" << std::endl;
-    }
+        if (mBlocksAreAllocated == true)
+        {
+            mis_initialized = true;
+        }
+        else
+        {
+          std::cout << "linear solver intialization is deferred to the moment at which blocks are available" << std::endl;
+        }
     }
     /** This function is designed to be called every time the coefficients change in the system
      * that is, normally at the beginning of each solve.
@@ -167,7 +168,7 @@ public:
     {
         unsigned int m = mm;
         unsigned int max_iter = BaseType::GetMaxIterationsNumber();
-        DataType tol = BaseType::GetTolerance();
+        ValueType tol = BaseType::GetTolerance();
         gmres_solve (rA,rX,rB,m,max_iter,tol);
     }
 
@@ -486,7 +487,7 @@ protected:
             }
 
             S = L;
-            Vector diagK (mother_indices.size() );
+            VectorType diagK (mother_indices.size() );
             ComputeDiagonalByLumping (K,diagK);
         }
         else //allocation is not needed so only do copying
@@ -526,7 +527,7 @@ protected:
 
             S = L;
 
-            Vector diagK (mother_indices.size() );
+            VectorType diagK (mother_indices.size() );
             ComputeDiagonalByLumping (K,diagK);
         }
 
@@ -570,10 +571,10 @@ private:
     SparseMatrixType mD;
     SparseMatrixType mS;
 
-    Vector mrp;
-    Vector mru;
-    Vector mp;
-    Vector mu;
+    VectorType mrp;
+    VectorType mru;
+    VectorType mp;
+    VectorType mu;
 
     std::ofstream myfile;
     ///@}
@@ -606,7 +607,7 @@ private:
         dx = temp;
     }
 
-    void Update (VectorType& y, VectorType& x, int k, Matrix& h, VectorType& s, std::vector< VectorType >& V)
+    void Update (VectorType& y, VectorType& x, int k, DenseMatrixType& h, VectorType& s, std::vector< VectorType >& V)
     {
         for (unsigned int i=0; i<s.size(); i++)
             y[i] = s[i];
@@ -627,9 +628,9 @@ private:
     int gmres_solve ( SparseMatrixType& A,
                       VectorType& x,
                       const VectorType& b,
-                      unsigned int& m,
-                      unsigned int& max_iter,
-                      DataType& tol)
+                      unsigned int m,
+                      unsigned int max_iter,
+                      ValueType tol)
     {
         const unsigned int dim = A.size1();
         if (m == 0)
@@ -649,14 +650,14 @@ private:
         int red_dim=S_deflated.size1();                                         //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        Vector  cs (m+1);
-        Matrix  H (m+1, m+1);
+        VectorType  cs (m+1);
+        DenseMatrixType  H (m+1, m+1);
         int restart = 0;
         int p_dim=mS.size1();
         VectorType output(p_dim);//WT*lambda
         VectorType temp (dim,0.0);
 
-        DataType normb = TSparseSpaceType::TwoNorm (b);
+        ValueType normb = std::abs(TSparseSpaceType::TwoNorm (b));
     /*KRATOS_WATCH(normb);*/
         if (normb < 1e-16) //ARBITRARY SMALL NUMBER!
         {
@@ -685,8 +686,8 @@ private:
 #endif
 
 
-        const DataType rel_tol = tol*normb;
-        DataType beta = TSparseSpaceType::TwoNorm (r);
+        const ValueType rel_tol = tol*normb;
+        ValueType beta = std::abs(TSparseSpaceType::TwoNorm (r));
         if (beta <= rel_tol)   //finalize!
         {
             tol = beta / normb;
@@ -720,7 +721,7 @@ private:
                 const DataType normw = TSparseSpaceType::TwoNorm (w);
                 H (i+1, i) = normw;
                 // This breakdown is a good one ...
-                if (normw == 0)
+                if (std::abs(normw) == 0)
                     TSparseSpaceType::Copy (V[i+1], w); //V[i+1] = w;
                 else
                     TSparseSpaceType::Assign (V[i+1], 1.0/normw, w); //V[i+1] = w / normw;
@@ -729,7 +730,7 @@ private:
                 GeneratePlaneRotation (H (i,i), H (i+1,i), cs (i), sn (i) );
                 ApplyPlaneRotation (H (i,i), H (i+1,i), cs (i), sn (i) );
                 ApplyPlaneRotation (s (i), s (i+1), cs (i), sn (i) );
-                beta = fabs (s (i+1) );
+                beta = std::abs (s (i+1) );
         std::cout << "iter = " <<  j << "  estimated res ratio = " << beta << std::endl;
                 //KRATOS_WATCH (beta);
                 if (beta <= rel_tol)
@@ -750,8 +751,8 @@ private:
 
             //r = b - Ax
             TSparseSpaceType::Mult (A,x,r);
-        TSparseSpaceType::ScaleAndAdd (1.00, b, -1.00, r); //r = b - r
-            beta = TSparseSpaceType::TwoNorm (r);
+            TSparseSpaceType::ScaleAndAdd (1.00, b, -1.00, r); //r = b - r
+            beta = std::abs(TSparseSpaceType::TwoNorm (r));
 
         std::cout << "number of iterations at convergence = " << j << std::endl;
             if (beta < rel_tol)
@@ -785,7 +786,7 @@ private:
         // put here deflation i.e. solve for WTLWp=WTr fixing w
         //ww is a deflation matrix W written in a vector format
         //extracted the part of the residual corresponding to the pressure - r_p
-        Vector rp;
+        VectorType rp;
         //get the lower part of the residual vector, corresponding to pressure dofs
         GetPPart (r, rp);
         std::size_t reduced_size = S_deflated.size1();

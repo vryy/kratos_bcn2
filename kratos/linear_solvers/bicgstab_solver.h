@@ -61,11 +61,15 @@ public:
 
     typedef IterativeSolver<TSparseSpaceType, TDenseSpaceType, TPreconditionerType, TReordererType> BaseType;
 
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
+    typedef typename BaseType::DataType DataType;
 
-    typedef typename TSparseSpaceType::VectorType VectorType;
+    typedef typename BaseType::ValueType ValueType;
 
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
+
+    typedef typename BaseType::VectorType VectorType;
+
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
 
     ///@}
     ///@name Life Cycle
@@ -74,11 +78,11 @@ public:
     /// Default constructor.
     BICGSTABSolver() {}
 
-    BICGSTABSolver(double NewTolerance) : BaseType(NewTolerance) {}
+    BICGSTABSolver(ValueType NewTolerance) : BaseType(NewTolerance) {}
 
-    BICGSTABSolver(double NewTolerance, unsigned int NewMaxIterationsNumber) : BaseType(NewTolerance, NewMaxIterationsNumber) {}
+    BICGSTABSolver(ValueType NewTolerance, unsigned int NewMaxIterationsNumber) : BaseType(NewTolerance, NewMaxIterationsNumber) {}
 
-    BICGSTABSolver(double NewMaxTolerance, unsigned int NewMaxIterationsNumber, typename TPreconditionerType::Pointer pNewPreconditioner) :
+    BICGSTABSolver(ValueType NewMaxTolerance, unsigned int NewMaxIterationsNumber, typename TPreconditionerType::Pointer pNewPreconditioner) :
         BaseType(NewMaxTolerance, NewMaxIterationsNumber, pNewPreconditioner) {}
 
     /// Copy constructor.
@@ -281,7 +285,7 @@ private:
 // KRATOS_WATCH("ln321");
         TSparseSpaceType::ScaleAndAdd(1.00, rB, -1.00, r);
 // KRATOS_WATCH("ln322");
-        BaseType::mBNorm = TSparseSpaceType::TwoNorm(rB);
+        BaseType::mBNorm = std::abs(TSparseSpaceType::TwoNorm(rB));
 // KRATOS_WATCH("ln324");
         VectorType p(r);
         VectorType s(size);
@@ -290,22 +294,22 @@ private:
         VectorType rs(r);
         VectorType qs(size);
 
-        double roh0 = TSparseSpaceType::Dot(r, rs);
-        double roh1 = roh0;
-        double alpha = 0.00;
-        double beta = 0.00;
-        double omega = 0.00;
+        DataType roh0 = TSparseSpaceType::Dot(r, rs);
+        DataType roh1 = roh0;
+        DataType alpha = 0.00;
+        DataType beta = 0.00;
+        DataType omega = 0.00;
 // KRATOS_WATCH("ln337");
-// 	if(roh0 < 1e-30) //we start from the real solution
-// 		return  BaseType::IsConverged();
+//  if(roh0 < 1e-30) //we start from the real solution
+//      return  BaseType::IsConverged();
 
         do
         {
             this->PreconditionedMult(rA,p,q);
 // KRATOS_WATCH("ln344");
-	    alpha = TSparseSpaceType::Dot(rs,q);
-	    if (fabs(alpha) <= 1.0e-40)
-	      break;
+            alpha = TSparseSpaceType::Dot(rs,q);
+            if (std::abs(alpha) <= 1.0e-40)
+                break;
             alpha = roh0 / alpha;
 
             TSparseSpaceType::ScaleAndAdd(1.00, r, -alpha, q, s);
@@ -315,7 +319,7 @@ private:
             omega = TSparseSpaceType::Dot(qs,qs);
 
             //if(omega == 0.00)
-            if(fabs(omega) <= 1.0e-40)
+            if(std::abs(omega) <= 1.0e-40)
                 break;
 // KRATOS_WATCH("ln356");
             omega = TSparseSpaceType::Dot(qs,s) / omega;
@@ -327,7 +331,7 @@ private:
             roh1 = TSparseSpaceType::Dot(r,rs);
 
             //if((roh0 == 0.00) || (omega == 0.00))
-            if((fabs(roh0) <= 1.0e-40) || (fabs(omega) <= 1.0e-40))
+            if((std::abs(roh0) <= 1.0e-40) || (std::abs(omega) <= 1.0e-40))
                 break;
 
             beta = (roh1 * alpha) / (roh0 * omega);
@@ -337,7 +341,7 @@ private:
 
             roh0 = roh1;
 
-            BaseType::mResidualNorm =TSparseSpaceType::TwoNorm(r);
+            BaseType::mResidualNorm = std::abs(TSparseSpaceType::TwoNorm(r));
             BaseType::mIterationsNumber++;
 
         }

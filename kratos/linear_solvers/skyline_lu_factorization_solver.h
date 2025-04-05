@@ -241,7 +241,7 @@ public:
                 entry = *row_iterator;
                 newi = invperm[i];
                 newj = invperm[j];
-                if( entry != 0 )
+                if( std::abs(entry) != 0 )
                 {
                     if (newi>newj)
                     {
@@ -554,11 +554,11 @@ public:
 
     typedef LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType> BaseType;
 
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
 
-    typedef typename TSparseSpaceType::VectorType VectorType;
+    typedef typename BaseType::VectorType VectorType;
 
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
 
     /// Default constructor.
     SkylineLUFactorizationSolver() {}

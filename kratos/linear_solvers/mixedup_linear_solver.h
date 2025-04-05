@@ -54,12 +54,15 @@ public:
     /// Pointer definition of MixedUPLinearSolver
     KRATOS_CLASS_POINTER_DEFINITION (MixedUPLinearSolver);
     typedef IterativeSolver<TSparseSpaceType, TDenseSpaceType, TPreconditionerType, TReordererType> BaseType;
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
-    typedef typename TSparseSpaceType::VectorType VectorType;
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
-    typedef typename TDenseSpaceType::VectorType DenseVectorType;
-    typedef std::size_t  SizeType;
+    typedef LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType> LinearSolverType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
+    typedef typename BaseType::VectorType VectorType;
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
+    typedef typename BaseType::DenseVectorType DenseVectorType;
+    typedef typename BaseType::IndexType IndexType;
+    typedef typename BaseType::SizeType SizeType;
     typedef typename BaseType::DataType DataType;
+    typedef typename BaseType::ValueType ValueType;
     ///@}
 
     ///@name Life Cycle
@@ -67,7 +70,7 @@ public:
     /// Default constructor.
     MixedUPLinearSolver (typename LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType>::Pointer psolver_UU_block,
                          typename LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType>::Pointer psolver_PP_block,
-                         DataType NewMaxTolerance,
+                         ValueType NewMaxTolerance,
                          unsigned int NewMaxIterationsNumber,
                          unsigned int m
                         ) : BaseType (NewMaxTolerance, NewMaxIterationsNumber)
@@ -82,7 +85,7 @@ public:
     /// Copy constructor.
     MixedUPLinearSolver (const MixedUPLinearSolver& Other)
     {
-        KRATOS_THROW_ERROR (std::logic_error,"copy constructor not correctly implemented","");
+        KRATOS_ERROR << "copy constructor not correctly implemented";
     }
     /// Destructor.
     virtual ~MixedUPLinearSolver() {}
@@ -109,7 +112,6 @@ public:
     {
         if (mBlocksAreAllocated == true)
         {
-
             mpsolver_UU_block->Initialize(mK, mu, mru);
             mpsolver_PP_block->Initialize(mS, mp, mrp);
             mis_initialized = true;
@@ -158,7 +160,7 @@ public:
     {
         unsigned int m = mm;
         unsigned int max_iter = BaseType::GetMaxIterationsNumber();
-        DataType tol = BaseType::GetTolerance();
+        ValueType tol = BaseType::GetTolerance();
         gmres_solve (rA,rX,rB,m,max_iter,tol);
     }
 
@@ -275,7 +277,7 @@ public:
         }
 
         if (tot_active_dofs != rA.size1() )
-            KRATOS_THROW_ERROR (std::logic_error,"total system size does not coincide with the free dof map","");
+            KRATOS_ERROR << "total system size does not coincide with the free dof map";
 
         //resize arrays as needed
         mpressure_indices.resize (n_pressure_dofs,false);
@@ -413,7 +415,7 @@ protected:
             //allocate the schur complement
             ConstructSystemMatrix(S,G,D,L);
 
-            Vector diagK (mother_indices.size() );
+            VectorType diagK (mother_indices.size() );
             ComputeDiagonalByLumping (K,diagK);
 
             //fill the shur complement
@@ -456,7 +458,7 @@ protected:
                 }
             }
 
-            Vector diagK (mother_indices.size() );
+            VectorType diagK (mother_indices.size() );
             ComputeDiagonalByLumping (K,diagK);
 
             //fill the shur complement
@@ -490,44 +492,44 @@ private:
     ///@name Member Variables
     ///@{
     /// A counted pointer to the reorderer object.
-    typename LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType>::Pointer mpsolver_UU_block;
-    typename LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType>::Pointer mpsolver_PP_block;
+    typename LinearSolverType::Pointer mpsolver_UU_block;
+    typename LinearSolverType::Pointer mpsolver_PP_block;
     unsigned int mm;
     bool mBlocksAreAllocated;
     bool mis_initialized;
-    boost::numeric::ublas::vector<unsigned int> mpressure_indices;
-    boost::numeric::ublas::vector<unsigned int> mother_indices;
-    boost::numeric::ublas::vector<int> mglobal_to_local_indexing;
-    boost::numeric::ublas::vector<int> mis_pressure_block;
+    boost::numeric::ublas::vector<IndexType> mpressure_indices;
+    boost::numeric::ublas::vector<IndexType> mother_indices;
+    boost::numeric::ublas::vector<unsigned int> mglobal_to_local_indexing;
+    boost::numeric::ublas::vector<bool> mis_pressure_block;
     SparseMatrixType mK;
     SparseMatrixType mG;
     SparseMatrixType mD;
     SparseMatrixType mS;
 
-    Vector mrp;
-    Vector mru;
-    Vector mp;
-    Vector mu;
+    VectorType mrp;
+    VectorType mru;
+    VectorType mp;
+    VectorType mu;
 
     ///@}
     ///@name Private Operators
     ///@{
     inline void GeneratePlaneRotation (const DataType dx, const DataType dy, DataType& cs, DataType& sn)
     {
-        if (dy == 0.0)
+        if (std::abs(dy) == 0.0)
         {
             cs = 1.0;
             sn = 0.0;
         }
-        else if (dx == 0.0)
+        else if (std::abs(dx) == 0.0)
         {
             cs = 0.0;
             sn = 1.0;
         }
         else
         {
-            const DataType rnorm = 1.0/sqrt (dx*dx + dy*dy);
-            cs = fabs (dx) * rnorm;
+            const DataType rnorm = 1.0/std::sqrt (dx*dx + dy*dy);
+            cs = std::abs(dx) * rnorm;
             sn = cs * dy / dx;
         }
     }
@@ -539,7 +541,7 @@ private:
         dx = temp;
     }
 
-    void Update (VectorType& y, VectorType& x, int k, Matrix& h, VectorType& s, std::vector< VectorType >& V)
+    void Update (VectorType& y, VectorType& x, int k, DenseMatrixType& h, VectorType& s, std::vector< VectorType >& V)
     {
         for (unsigned int i=0; i<s.size(); i++)
             y[i] = s[i];
@@ -560,25 +562,25 @@ private:
     int gmres_solve ( SparseMatrixType& A,
                       VectorType& x,
                       const VectorType& b,
-                      unsigned int& m,
-                      unsigned int& max_iter,
-                      DataType& tol)
+                      unsigned int m,
+                      unsigned int max_iter,
+                      ValueType tol)
     {
         const unsigned int dim = A.size1();
         if (m == 0)
-            KRATOS_THROW_ERROR (std::logic_error,"the dimension of the GMRES krylov space can not be set to zero. Please change the value of m","")
+            KRATOS_ERROR << "the dimension of the GMRES krylov space can not be set to zero. Please change the value of m";
             if (m > max_iter)
                 m = max_iter;
         VectorType s (m+1), sn (m+1), w (dim), r (dim), y (m+1);
-        Vector  cs (m+1);
-        Matrix  H (m+1, m+1);
+        VectorType cs (m+1);
+        DenseMatrixType H (m+1, m+1);
         int restart = 0;
         //preconditioner solve b and store in Minv_b
-        Vector preconditioned_b (dim);
+        VectorType preconditioned_b (dim);
         //TSparseSpaceType::Copy(b, preconditioned_b); //preconditioned_b=b
         //apply preconditioner
         SolveBlockPreconditioner (b,preconditioned_b);
-        DataType normb = TSparseSpaceType::TwoNorm (preconditioned_b);
+        ValueType normb = std::abs(TSparseSpaceType::TwoNorm (preconditioned_b));
         /*KRATOS_WATCH(normb);*/
         if (normb < 1e-16) //ARBITRARY SMALL NUMBER!
         {
@@ -589,8 +591,8 @@ private:
         TSparseSpaceType::ScaleAndAdd (1.00, b, -1.00, r); //r = b - r
         //apply preconditioner and overwrite r
         SolveBlockPreconditioner (r,r);
-        const DataType rel_tol = tol*normb;
-        DataType beta = TSparseSpaceType::TwoNorm (r);
+        const ValueType rel_tol = tol*normb;
+        ValueType beta = std::abs(TSparseSpaceType::TwoNorm(r));
         if (beta <= rel_tol)   //finalize!
         {
             tol = beta / normb;
@@ -622,7 +624,7 @@ private:
                 H (i+1, i) = normw;
                 /*KRATOS_WATCH(normw);*/
                 // This breakdown is a good one ...
-                if (normw == 0)
+                if (std::abs(normw) == 0)
                     TSparseSpaceType::Copy (V[i+1], w); //V[i+1] = w;
                 else
                     TSparseSpaceType::Assign (V[i+1], 1.0/normw, w); //V[i+1] = w / normw;
@@ -631,7 +633,7 @@ private:
                 GeneratePlaneRotation (H (i,i), H (i+1,i), cs (i), sn (i) );
                 ApplyPlaneRotation (H (i,i), H (i+1,i), cs (i), sn (i) );
                 ApplyPlaneRotation (s (i), s (i+1), cs (i), sn (i) );
-                beta = fabs (s (i+1) );
+                beta = std::abs(s (i+1) );
         std::cout << "iter = " <<  j << "  estimated res ratio = " << beta << std::endl;
 //                 KRATOS_WATCH (beta);
                 if (beta <= rel_tol)
@@ -644,7 +646,7 @@ private:
             //r = b - Ax
             TSparseSpaceType::Mult (A,x,r);
             TSparseSpaceType::ScaleAndAdd (1.00, b, -1.00, r); //r = b - r
-            beta = TSparseSpaceType::TwoNorm (r);
+            beta = std::abs(TSparseSpaceType::TwoNorm (r));
 
         std::cout << "number of iterations at convergence = " << j << std::endl;
             if (beta < rel_tol)
@@ -728,11 +730,11 @@ private:
             unsigned int row_end   = index1[i+1];
             if (row_end - row_begin == 0)
                 std::cout << "line " << i << " has no elements" << std::endl;
-            //KRATOS_THROW_ERROR(std::logic_error, "line found with no entries on line ",i)
+            //KRATOS_ERROR << "line found with no entries on line " << i;
             for (unsigned int j=row_begin; j<row_end; j++)
             {
                 if (index2[j]>A.size2() )
-                    KRATOS_THROW_ERROR (std::logic_error, "array above size of A","")
+                    KRATOS_ERROR << "array above size of A";
                     norm += values[j]*values[j];
             }
         }
@@ -743,11 +745,11 @@ private:
     {
         noalias(mp) = ZeroVector(mother_indices.size());
         noalias(mu)  = ZeroVector(mother_indices.size());
-        Vector uaux (mother_indices.size() );
-        Vector paux (mpressure_indices.size() );
+        VectorType uaux (mother_indices.size() );
+        VectorType paux (mpressure_indices.size() );
 
         //get diagonal of K (to be removed)
-        Vector diagK (mother_indices.size() );
+        VectorType diagK (mother_indices.size() );
         ComputeDiagonalByLumping (mK,diagK);
 
     //get the u and p residuals

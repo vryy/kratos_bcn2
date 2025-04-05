@@ -122,7 +122,7 @@ public:
         #pragma omp parallel for private(i)
         for(i = 0 ; i < int(rA.size1()) ; ++i)
         {
-            double diag_Aii = rA(i,i);
+            DataType diag_Aii = rA(i,i);
             if(diag_Aii != zero)
                 mDiagonal[i] = 1.00 / sqrt(fabs(diag_Aii));
             else

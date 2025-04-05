@@ -82,6 +82,10 @@ public:
     /// Pointer definition of Preconditioner
     KRATOS_CLASS_POINTER_DEFINITION(Preconditioner);
 
+    typedef typename TSparseSpaceType::DataType DataType;
+
+    typedef typename TSparseSpaceType::ValueType ValueType;
+
     typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
 
     typedef typename TSparseSpaceType::VectorType VectorType;

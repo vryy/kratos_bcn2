@@ -37,31 +37,30 @@ public:
     /// Counted pointer of TFQMRSolver
     KRATOS_CLASS_POINTER_DEFINITION(TFQMRSolver);
 
-
     typedef IterativeSolver<TSparseSpaceType, TDenseSpaceType, TPreconditionerType, TReordererType > BaseType;
 
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
+    typedef typename BaseType::DataType DataType;
 
-    typedef typename TSparseSpaceType::VectorType VectorType;
+    typedef typename BaseType::ValueType ValueType;
 
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
 
+    typedef typename BaseType::VectorType VectorType;
 
-
-
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
 
     /// Default constructor.
     TFQMRSolver() {}
 
 
-    TFQMRSolver(double NewTolerance) : BaseType(NewTolerance) {}
+    TFQMRSolver(ValueType NewTolerance) : BaseType(NewTolerance) {}
 
 
-    TFQMRSolver(double NewTolerance,
+    TFQMRSolver(ValueType NewTolerance,
                 unsigned int NewMaxIterationsNumber) : BaseType(NewTolerance, NewMaxIterationsNumber) {}
 
 
-    TFQMRSolver(double NewMaxTolerance,
+    TFQMRSolver(ValueType NewMaxTolerance,
                 unsigned int NewMaxIterationsNumber,
                 typename TPreconditionerType::Pointer pNewPreconditioner) :
         BaseType(NewMaxTolerance, NewMaxIterationsNumber, pNewPreconditioner) {}
@@ -181,10 +180,10 @@ private:
         BaseType::mIterationsNumber = 0;
 
 
-        BaseType::mBNorm        = TSparseSpaceType::TwoNorm(rB);
+        BaseType::mBNorm        = std::abs(TSparseSpaceType::TwoNorm(rB));
 
 
-        double errtol = BaseType::mBNorm*BaseType::GetTolerance();
+        ValueType errtol = BaseType::mBNorm*BaseType::GetTolerance();
 
 
         VectorType r(rB);
@@ -209,17 +208,17 @@ private:
         for(typename VectorType::iterator itu2 = u2.begin(); itu2 != u2.end(); itu2++) *itu2 = 0.00;
 
 
-        double theta = 0.00;
-        double eta   = 0.00;
-        double sigma = 0.00;
-        double alpha = 0.00;
-        double c     = 0.00;
+        DataType theta = 0.00;
+        DataType eta   = 0.00;
+        DataType sigma = 0.00;
+        DataType alpha = 0.00;
+        DataType c     = 0.00;
 
 
-        double tau   = TSparseSpaceType::TwoNorm(r);
-        double rho   = tau*tau;
-        double rhon  = 0.00;
-        double beta  = 0.00;
+        DataType tau   = TSparseSpaceType::TwoNorm(r);
+        DataType rho   = tau*tau;
+        DataType rhon  = 0.00;
+        DataType beta  = 0.00;
 
 
         int m = 0;
@@ -235,7 +234,7 @@ private:
 
             sigma = TSparseSpaceType::Dot(r,v);
 
-            if (sigma == 0.00) break;
+            if (std::abs(sigma) == 0.00) break;
 
             alpha = rho/sigma;
 
@@ -255,7 +254,7 @@ private:
             TSparseSpaceType::ScaleAndAdd(1.00, y1, (theta*theta*eta/alpha), d);
 
             theta = TSparseSpaceType::TwoNorm(w)/tau;
-            c     = 1.00/sqrt(1.00+theta*theta);
+            c     = 1.00/std::sqrt(1.00+theta*theta);
             tau   = tau*theta*c;
             eta   = c*c*alpha;
 
@@ -263,7 +262,7 @@ private:
             //x=x+eta*d;
             TSparseSpaceType::ScaleAndAdd(eta, d, 1.00, rX);
 
-            BaseType::mResidualNorm = tau*sqrt((double)(m+1));
+            BaseType::mResidualNorm = std::abs(tau)*std::sqrt((ValueType)(m+1));
 
             if (BaseType::mResidualNorm <= errtol) break;
 
@@ -290,7 +289,7 @@ private:
 
 
             theta = TSparseSpaceType::TwoNorm(w)/tau;
-            c     = 1.00/sqrt(1+theta*theta);
+            c     = 1.00/std::sqrt(1+theta*theta);
             tau   = tau*theta*c;
             eta   = c*c*alpha;
 
@@ -299,7 +298,7 @@ private:
             TSparseSpaceType::ScaleAndAdd(eta, d, 1.00, rX);
 
 
-            BaseType::mResidualNorm = tau*sqrt((double)(m+1));
+            BaseType::mResidualNorm = std::abs(tau)*std::sqrt((ValueType)(m+1));
 
             if (BaseType::mResidualNorm <= errtol) break;
 

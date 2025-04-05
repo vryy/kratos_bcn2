@@ -53,9 +53,9 @@ public:
     /// Counted pointer of ILUPreconditioner
     KRATOS_CLASS_POINTER_DEFINITION(ILUPreconditioner);
 
-
     typedef Preconditioner<TSparseSpaceType, TDenseSpaceType> BaseType;
 
+    typedef typename TSparseSpaceType::DataType DataType;
 
     typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
 
@@ -112,8 +112,8 @@ public:
     {
         mILUSize = Other.mILUSize;
         unsigned int size = Other.iL[mILUSize];
-        L = new double[size];
-        U = new double[size];
+        L = new DataType[size];
+        U = new DataType[size];
         iL = new int[mILUSize+1];
         jL = new int[size];
         iU = new int[mILUSize+1];
@@ -161,7 +161,7 @@ public:
     {
         const int size = TSparseSpaceType::Size(rX);
         VectorType temp(size);
-        double sum;
+        DataType sum;
         int i, indexj;
         for (i=0; i<size; i++)
         {
@@ -193,7 +193,7 @@ public:
         const int size = TSparseSpaceType::Size(rX);
         VectorType temp(size);
         int i, indexj;
-        double tempi, rxi;
+        DataType tempi, rxi;
         for (i=0; i<size; i++) temp[i]=rX[i];
         for (i=0; i<size; i++)
         {
@@ -257,7 +257,7 @@ protected:
 
     unsigned int mILUSize;
     int *iL, *jL, *iU, *jU;
-    double *L, *U;
+    DataType *L, *U;
 
 
     ///@}

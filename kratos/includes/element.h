@@ -89,7 +89,9 @@ public:
 
     typedef Matrix MatrixType;
 
+    typedef ComplexVector ComplexVectorType;
 
+    typedef ComplexMatrix ComplexMatrixType;
 
     typedef BaseType::IndexType IndexType;
 
@@ -438,6 +440,22 @@ public:
      */
     virtual void CalculateLocalSystem(MatrixType& rLeftHandSideMatrix,
                                       VectorType& rRightHandSideVector,
+                                      const ProcessInfo& rCurrentProcessInfo)
+    {
+        KRATOS_ERROR << "Element " << this->Id() << ", type " << typeid(*this).name() << ": "
+                     << __FUNCTION__ << " is not implemented";
+    }
+
+    /**
+     * this is called during the assembling process in order
+     * to calculate all elemental contributions to the global system
+     * matrix and the right hand side
+     * @param rLeftHandSideMatrix the elemental (complex) left hand side matrix
+     * @param rRightHandSideVector the elemental (complex) right hand side
+     * @param rCurrentProcessInfo the current process info instance
+     */
+    virtual void CalculateLocalSystem(ComplexMatrixType& rLeftHandSideMatrix,
+                                      ComplexVectorType& rRightHandSideVector,
                                       const ProcessInfo& rCurrentProcessInfo)
     {
         KRATOS_ERROR << "Element " << this->Id() << ", type " << typeid(*this).name() << ": "

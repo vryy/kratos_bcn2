@@ -69,13 +69,17 @@ public:
 
     //      typedef LinearSolver<TSparseSpaceType, TDenseSpaceType, TReordererType> LinearSolverType;
 
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
+    typedef typename BaseType::DataType DataType;
 
-    typedef typename TSparseSpaceType::VectorType SparseVectorType;
+    typedef typename BaseType::ValueType ValueType;
 
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
 
-    typedef typename TDenseSpaceType::VectorType DenseVectorType;
+    typedef typename BaseType::VectorType SparseVectorType;
+
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
+
+    typedef typename BaseType::DenseVectorType DenseVectorType;
 
     typedef DeflationUtils<SparseMatrixType, SparseVectorType> DeflationUtilsType;
 
@@ -89,21 +93,21 @@ public:
     {
     }
 
-    DeflatedCGSolver(double NewMaxTolerance, bool assume_constant_structure, int max_reduced_size) :
+    DeflatedCGSolver(ValueType NewMaxTolerance, bool assume_constant_structure, int max_reduced_size) :
         BaseType(NewMaxTolerance)
         , mmax_reduced_size(max_reduced_size)
         , massume_constant_structure(assume_constant_structure)
     {
     }
 
-    DeflatedCGSolver(double NewMaxTolerance, unsigned int NewMaxIterationsNumber, bool assume_constant_structure, int max_reduced_size) :
+    DeflatedCGSolver(ValueType NewMaxTolerance, unsigned int NewMaxIterationsNumber, bool assume_constant_structure, int max_reduced_size) :
         BaseType(NewMaxTolerance, NewMaxIterationsNumber)
         , mmax_reduced_size(max_reduced_size)
         , massume_constant_structure(assume_constant_structure)
     {
     }
 
-    DeflatedCGSolver(double NewMaxTolerance, unsigned int NewMaxIterationsNumber,
+    DeflatedCGSolver(ValueType NewMaxTolerance, unsigned int NewMaxIterationsNumber,
                      typename TPreconditionerType::Pointer pNewPreconditioner, bool assume_constant_structure, int max_reduced_size) :
         BaseType(NewMaxTolerance, NewMaxIterationsNumber, pNewPreconditioner)
         , mmax_reduced_size(max_reduced_size)
@@ -359,13 +363,13 @@ private:
         // Iteration counter
         BaseType::mIterationsNumber = 0;
 
-        BaseType::mBNorm = TSparseSpaceType::TwoNorm(rB);
+        BaseType::mBNorm = std::abs(TSparseSpaceType::TwoNorm(rB));
 
-        double roh0 = TSparseSpaceType::Dot(r, r);
-        double roh1 = roh0;
-        double beta = 0;
+        DataType roh0 = TSparseSpaceType::Dot(r, r);
+        DataType roh1 = roh0;
+        DataType beta = 0;
 
-        if (fabs(roh0) < 1.0e-30) //modification by Riccardo
+        if (std::abs(roh0) < 1.0e-30) //modification by Riccardo
             //	if(roh0 == 0.00)
 
             return false;
@@ -374,15 +378,15 @@ private:
         {
             TSparseSpaceType::Mult(rA, p, q);
 
-            double pq = TSparseSpaceType::Dot(p, q);
+            DataType pq = TSparseSpaceType::Dot(p, q);
 
             //std::cout << "********** pq = " << pq << std::endl;
 
             //if(pq == 0.00)
-            if (fabs(pq) <= 1.0e-30)
+            if (std::abs(pq) <= 1.0e-30)
                 break;
 
-            double alpha = roh0 / pq;
+            DataType alpha = roh0 / pq;
 
             TSparseSpaceType::ScaleAndAdd(alpha, p, 1.00, rX);
             TSparseSpaceType::ScaleAndAdd(-alpha, q, 1.00, r);
@@ -414,7 +418,7 @@ private:
 
             roh0 = roh1;
 
-            BaseType::mResidualNorm = sqrt(roh1);
+            BaseType::mResidualNorm = std::abs(std::sqrt(roh1));
 
             BaseType::mIterationsNumber++;
 
@@ -422,7 +426,7 @@ private:
 //                 std::cout << "********** iteration = " << BaseType::mIterationsNumber << ", resnorm = " << BaseType::mResidualNorm << std::endl;
 
         }
-        while (BaseType::IterationNeeded() && (fabs(roh0) > 1.0e-30)/*(roh0 != 0.00)*/);
+        while (BaseType::IterationNeeded() && (std::abs(roh0) > 1.0e-30)/*(roh0 != 0.00)*/);
 
         return BaseType::IsConverged();
     }

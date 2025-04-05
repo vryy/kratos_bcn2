@@ -66,17 +66,21 @@ public:
 
     typedef IterativeSolver<TSparseSpaceType, TDenseSpaceType, TPreconditionerType, TReordererType> BaseType;
 
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
 
-    typedef typename TSparseSpaceType::VectorType VectorType;
+    typedef typename BaseType::VectorType VectorType;
 
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
 
-    typedef typename TDenseSpaceType::VectorType DenseVectorType;
+    typedef typename BaseType::DenseVectorType DenseVectorType;
 
-    typedef std::size_t SizeType;
+    typedef typename BaseType::SizeType SizeType;
 
-    typedef std::size_t IndexType;
+    typedef typename BaseType::IndexType IndexType;
+
+    typedef typename BaseType::DataType DataType;
+
+    typedef typename BaseType::ValueType ValueType;
 
     ///@}
     ///@name Life Cycle
@@ -135,7 +139,7 @@ public:
 
         SizeType size = K.size1();
         SizeType max_iteration = BaseType::GetMaxIterationsNumber();
-        double tolerance = BaseType::GetTolerance();
+        ValueType tolerance = BaseType::GetTolerance();
 
         VectorType x = ZeroVector(size);
         VectorType y = ZeroVector(size);
@@ -147,11 +151,11 @@ public:
 
 
         // Starting with first step
-        double beta = 0.00;
-        double ro = 0.00;
-        double old_ro = Eigenvalues[0];
+        DataType beta = 0.00;
+        DataType ro = 0.00;
+        DataType old_ro = Eigenvalues[0];
         std::cout << "iteration    beta \t\t ro \t\t convergence norm" << std::endl;
-        for(SizeType i = 0 ; i < max_iteration ; i++)
+        for(IndexType i = 0 ; i < max_iteration ; i++)
         {
             //K*x = y
             mpLinearSolver->Solve(K,x,y);
@@ -162,20 +166,23 @@ public:
             noalias(y) = prod(M,x);
 
             beta = inner_prod(x, y);
-            if(beta <= 0.00)
-                KRATOS_THROW_ERROR(std::invalid_argument, "M is not Positive-definite", "");
+            if constexpr (std::is_same<DataType, ValueType>::value)
+            {
+                if(beta <= 0.00)
+                    KRATOS_THROW_ERROR(std::invalid_argument, "M is not Positive-definite", "");
+            }
 
             ro = ro / beta;
-            beta = sqrt(beta);
+            beta = std::sqrt(beta);
 
-            double inverse_of_beta = 1.00 / beta;
+            DataType inverse_of_beta = 1.00 / beta;
 
             y *= inverse_of_beta;
 
-            if(ro == 0.00)
+            if(std::abs(ro) == 0.00)
                 KRATOS_THROW_ERROR(std::runtime_error, "Perpendicular eigenvector to M", "");
 
-            double convergence_norm = fabs((ro - old_ro) / ro);
+            ValueType convergence_norm = std::abs((ro - old_ro) / ro);
 
             std::cout << i << " \t " << beta << " \t " << ro << " \t " << convergence_norm << std::endl;
             //std::cout << "i = " << i << ": beta = " << beta << ", ro = " << ro << ", convergence norm = " << convergence_norm << std::endl;

@@ -120,9 +120,13 @@ public:
 
     typedef typename TDenseSpaceType::VectorType DenseVectorType;
 
-    typedef std::size_t  SizeType;
+    typedef KRATOS_INDEX_TYPE IndexType;
+
+    typedef KRATOS_SIZE_TYPE SizeType;
 
     typedef typename TSparseSpaceType::DataType DataType;
+
+    typedef typename TSparseSpaceType::ValueType ValueType;
 
     ///@}
     ///@name Life Cycle
@@ -277,12 +281,12 @@ public:
     ///@name Access
     ///@{
 
-    virtual void SetEchoLevel(const int& EchoLevel)
+    virtual void SetEchoLevel(const int EchoLevel)
     {
         mEchoLevel = EchoLevel;
     }
 
-    const int& GetEchoLevel() const
+    int GetEchoLevel() const
     {
         return mEchoLevel;
     }
@@ -297,12 +301,12 @@ public:
         mpReorderer = pNewReorderer;
     }
 
-    virtual void SetTolerance(DataType NewTolerance)
+    virtual void SetTolerance(ValueType NewTolerance)
     {
         std::cout << "WARNING: Accessed base function Kratos::LinearSolver::SetTolerance(" << DataTypeToString<DataType>::Get() << "). This does nothing !" << std::endl;
     }
 
-    virtual DataType GetTolerance()
+    virtual ValueType GetTolerance() const
     {
         std::cout << "WARNING: Accessed base function Kratos::LinearSolver::GetTolerance(). No tolerance defined, returning 0 !" << std::endl ;
         return 0;
@@ -312,7 +316,7 @@ public:
     ///@name Inquiry
     ///@{
 
-    virtual bool IsConsistent(SparseMatrixType& rA, VectorType& rX, VectorType& rB)
+    virtual bool IsConsistent(SparseMatrixType& rA, VectorType& rX, VectorType& rB) const
     {
         const SizeType size = TSparseSpaceType::Size1(rA);
 
@@ -321,7 +325,7 @@ public:
                 (size ==  TSparseSpaceType::Size(rB)));
     }
 
-    virtual bool IsConsistent(SparseMatrixType& rA, DenseMatrixType& rX, DenseMatrixType& rB)
+    virtual bool IsConsistent(SparseMatrixType& rA, DenseMatrixType& rX, DenseMatrixType& rB) const
     {
         const SizeType size = TSparseSpaceType::Size1(rA);
 
@@ -332,12 +336,12 @@ public:
     }
 
 
-    virtual bool IsNotConsistent(SparseMatrixType& rA, VectorType& rX, VectorType& rB)
+    virtual bool IsNotConsistent(SparseMatrixType& rA, VectorType& rX, VectorType& rB) const
     {
         return (!IsConsistent(rA, rX, rB));
     }
 
-    virtual bool IsNotConsistent(SparseMatrixType& rA, DenseMatrixType& rX, DenseMatrixType& rB)
+    virtual bool IsNotConsistent(SparseMatrixType& rA, DenseMatrixType& rX, DenseMatrixType& rB) const
     {
         return (!IsConsistent(rA, rX, rB));
     }

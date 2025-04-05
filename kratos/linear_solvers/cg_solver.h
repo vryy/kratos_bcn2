@@ -64,11 +64,15 @@ public:
 
     typedef IterativeSolver<TSparseSpaceType, TDenseSpaceType, TPreconditionerType, TReordererType> BaseType;
 
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
+    typedef typename BaseType::DataType DataType;
 
-    typedef typename TSparseSpaceType::VectorType VectorType;
+    typedef typename BaseType::ValueType ValueType;
 
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
+
+    typedef typename BaseType::VectorType VectorType;
+
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
 
     ///@}
     ///@name Life Cycle
@@ -77,11 +81,11 @@ public:
     /// Default constructor.
     CGSolver() {}
 
-    CGSolver(double NewMaxTolerance) : BaseType(NewMaxTolerance) {}
+    CGSolver(ValueType NewMaxTolerance) : BaseType(NewMaxTolerance) {}
 
-    CGSolver(double NewMaxTolerance, unsigned int NewMaxIterationsNumber) : BaseType(NewMaxTolerance, NewMaxIterationsNumber) {}
+    CGSolver(ValueType NewMaxTolerance, unsigned int NewMaxIterationsNumber) : BaseType(NewMaxTolerance, NewMaxIterationsNumber) {}
 
-    CGSolver(double NewMaxTolerance, unsigned int NewMaxIterationsNumber, typename TPreconditionerType::Pointer pNewPreconditioner) :
+    CGSolver(ValueType NewMaxTolerance, unsigned int NewMaxIterationsNumber, typename TPreconditionerType::Pointer pNewPreconditioner) :
         BaseType(NewMaxTolerance, NewMaxIterationsNumber, pNewPreconditioner) {}
 
     /// Copy constructor.
@@ -267,16 +271,16 @@ private:
         this->PreconditionedMult(rA,rX,r);
         TSparseSpaceType::ScaleAndAdd(1.00, rB, -1.00, r);
 
-        BaseType::mBNorm = TSparseSpaceType::TwoNorm(rB);
+        BaseType::mBNorm = std::abs(TSparseSpaceType::TwoNorm(rB));
 
         VectorType p(r);
         VectorType q(size);
 
-        double roh0 = TSparseSpaceType::Dot(r, r);
-        double roh1 = roh0;
-        double beta = 0;
+        DataType roh0 = TSparseSpaceType::Dot(r, r);
+        DataType roh1 = roh0;
+        DataType beta = 0;
 
-        if(fabs(roh0) < 1.0e-30) //modification by Riccardo
+        if(std::abs(roh0) < 1.0e-30) //modification by Riccardo
 //	if(roh0 == 0.00)
             return false;
 
@@ -284,13 +288,13 @@ private:
         {
             this->PreconditionedMult(rA,p,q);
 
-            double pq = TSparseSpaceType::Dot(p,q);
+            DataType pq = TSparseSpaceType::Dot(p,q);
 
             //if(pq == 0.00)
-            if(fabs(pq) <= 1.0e-30)
+            if(std::abs(pq) <= 1.0e-30)
                 break;
 
-            double alpha = roh0 / pq;
+            DataType alpha = roh0 / pq;
 
             TSparseSpaceType::ScaleAndAdd(alpha, p, 1.00, rX);
             TSparseSpaceType::ScaleAndAdd(-alpha, q, 1.00, r);
@@ -302,7 +306,7 @@ private:
 
             roh0 = roh1;
 
-            BaseType::mResidualNorm = sqrt(roh1);
+            BaseType::mResidualNorm = std::abs(std::sqrt(roh1));
             BaseType::mIterationsNumber++;
 
             if (this->GetEchoLevel() > 0)
@@ -312,7 +316,7 @@ private:
                           << std::endl;
             }
         }
-        while(BaseType::IterationNeeded() && (fabs(roh0) > 1.0e-30)/*(roh0 != 0.00)*/);
+        while(BaseType::IterationNeeded() && (std::abs(roh0) > 1.0e-30)/*(roh0 != 0.00)*/);
 
         return BaseType::IsConverged();
     }

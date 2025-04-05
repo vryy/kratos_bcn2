@@ -121,6 +121,12 @@ public:
 
     typedef typename BaseType::DataType DataType;
 
+    typedef typename BaseType::ValueType ValueType;
+
+    typedef typename BaseType::IndexType IndexType;
+
+    typedef typename BaseType::SizeType SizeType;
+
     typedef TPreconditionerType PreconditionerType;
 
     ///@}
@@ -138,17 +144,17 @@ public:
     {
     }
 
-    IterativeSolver(DataType NewTolerance)
+    IterativeSolver(ValueType NewTolerance)
         : mResidualNorm(0)
         , mIterationsNumber(0)
         , mBNorm(0)
         , mpPreconditioner(new TPreconditionerType())
-        ,	mTolerance(NewTolerance)
+        , mTolerance(NewTolerance)
         , mMaxIterationsNumber(0)
     {
     }
 
-    IterativeSolver(DataType NewTolerance, unsigned int NewMaxIterationsNumber)
+    IterativeSolver(ValueType NewTolerance, unsigned int NewMaxIterationsNumber)
         : mResidualNorm(0)
         , mIterationsNumber(0)
         , mBNorm(0)
@@ -156,7 +162,7 @@ public:
         , mTolerance(NewTolerance)
         , mMaxIterationsNumber(NewMaxIterationsNumber) {}
 
-    IterativeSolver(DataType NewTolerance, unsigned int NewMaxIterationsNumber, typename TPreconditionerType::Pointer pNewPreconditioner) :
+    IterativeSolver(ValueType NewTolerance, unsigned int NewMaxIterationsNumber, typename TPreconditionerType::Pointer pNewPreconditioner) :
         mResidualNorm(0), mIterationsNumber(0), mBNorm(0),
         mpPreconditioner(pNewPreconditioner),
         mTolerance(NewTolerance),
@@ -310,24 +316,24 @@ public:
         return mIterationsNumber;
     }
 
-    void SetTolerance(DataType NewTolerance) override
+    void SetTolerance(ValueType NewTolerance) override
     {
         mTolerance = NewTolerance;
     }
 
-    DataType GetTolerance() override
+    ValueType GetTolerance() const override
     {
         return mTolerance;
     }
 
-    virtual void SetResidualNorm(DataType NewResidualNorm)
+    virtual void SetResidualNorm(ValueType NewResidualNorm)
     {
         if (mIterationsNumber == 1)
             mFirstResidualNorm = NewResidualNorm;
         mResidualNorm = NewResidualNorm;
     }
 
-    virtual DataType GetResidualNorm()
+    virtual ValueType GetResidualNorm() const
     {
         return mResidualNorm;
     }
@@ -403,13 +409,13 @@ protected:
     ///@name Protected member Variables
     ///@{
 
-    DataType mResidualNorm;
+    ValueType mResidualNorm;
 
-    DataType mFirstResidualNorm;
+    ValueType mFirstResidualNorm;
 
     unsigned int mIterationsNumber;
 
-    DataType mBNorm;
+    ValueType mBNorm;
 
     ///@}
     ///@name Protected Operators
@@ -462,7 +468,7 @@ private:
     /// A counted pointer to the preconditioner object.
     //      typename TStopCriteriaType::Pointer mpStopCriteria;
 
-    DataType mTolerance;
+    ValueType mTolerance;
 
     unsigned int mMaxIterationsNumber;
 

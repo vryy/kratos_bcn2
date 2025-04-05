@@ -67,12 +67,13 @@ public:
 
     typedef ILUPreconditioner<TSparseSpaceType, TDenseSpaceType> BaseType;
 
+    typedef typename BaseType::DataType DataType;
 
-    typedef typename TSparseSpaceType::MatrixType SparseMatrixType;
+    typedef typename BaseType::SparseMatrixType SparseMatrixType;
 
-    typedef typename TSparseSpaceType::VectorType VectorType;
+    typedef typename BaseType::VectorType VectorType;
 
-    typedef typename TDenseSpaceType::MatrixType DenseMatrixType;
+    typedef typename BaseType::DenseMatrixType DenseMatrixType;
 
 
     ///@}
@@ -144,7 +145,7 @@ public:
         const int size = TSparseSpaceType::Size(rX);
         int i, j, indexj, oldCountL, oldCountU, newCountL, newCountU, fillL, fillU;
         int k, indexk, indexkj, indexkjlim, jkj, indexjlim;
-        double aik;
+        DataType aik;
         bool diagFound;
 
         BaseType::mILUSize= size;
@@ -212,9 +213,9 @@ public:
         }
 
         // Traverse again the matrix copying its entries
-        BaseType::L =new double[BaseType::iL[n]];
+        BaseType::L =new DataType[BaseType::iL[n]];
         BaseType::jL=new int   [BaseType::iL[n]];
-        BaseType::U =new double[BaseType::iU[n]];
+        BaseType::U =new DataType[BaseType::iU[n]];
         BaseType::jU=new int   [BaseType::iU[n]];
         fillL=0;
         fillU=0;

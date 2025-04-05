@@ -147,6 +147,15 @@ else()
     add_compile_definitions(KRATOS_DOUBLE_TYPE=double)
     message("Kratos will be compiled with double type = double" )
 endif()
+
+# selector for complex type
+if(DEFINED KRATOS_COMPLEX_TYPE)
+    add_compile_definitions(KRATOS_COMPLEX_TYPE=${KRATOS_COMPLEX_TYPE})
+    message("Kratos will be compiled with complex type = " ${KRATOS_COMPLEX_TYPE})
+else()
+    add_compile_definitions(KRATOS_COMPLEX_TYPE=std::complex<double>)
+    message("Kratos will be compiled with complex type = std::complex<double>" )
+endif()
 ################################
 
 ##find all dependencies

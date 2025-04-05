@@ -16,6 +16,7 @@
 
 
 // System includes
+#include <complex>
 
 
 // External includes
@@ -90,6 +91,36 @@ namespace Kratos
     typedef boost::numeric::ublas::matrix_slice<Matrix> MatrixSlice;
 
     template <typename TExpressionType> using MatrixRow = boost::numeric::ublas::matrix_row<TExpressionType>;
+
+    /// types for complex linear algebra
+
+    typedef boost::numeric::ublas::vector<KRATOS_COMPLEX_TYPE> ComplexVector;
+    typedef boost::numeric::ublas::unit_vector<KRATOS_COMPLEX_TYPE> ComplexUnitVector;
+    typedef boost::numeric::ublas::zero_vector<KRATOS_COMPLEX_TYPE> ComplexZeroVector;
+    typedef boost::numeric::ublas::scalar_vector<KRATOS_COMPLEX_TYPE> ComplexScalarVector;
+    typedef boost::numeric::ublas::mapped_vector<KRATOS_COMPLEX_TYPE> ComplexSparseVector;
+
+    typedef boost::numeric::ublas::compressed_vector<KRATOS_COMPLEX_TYPE> ComplexCompressedVector;
+    typedef boost::numeric::ublas::coordinate_vector<KRATOS_COMPLEX_TYPE> ComplexCoordinateVector;
+    typedef boost::numeric::ublas::vector_range<ComplexVector> ComplexVectorRange;
+    typedef boost::numeric::ublas::vector_slice<ComplexVector> ComplexVectorSlice;
+
+    typedef boost::numeric::ublas::matrix<KRATOS_COMPLEX_TYPE> ComplexMatrix;
+    typedef boost::numeric::ublas::identity_matrix<KRATOS_COMPLEX_TYPE> ComplexIdentityMatrix;
+    typedef boost::numeric::ublas::zero_matrix<KRATOS_COMPLEX_TYPE> ComplexZeroMatrix;
+    typedef boost::numeric::ublas::scalar_matrix<KRATOS_COMPLEX_TYPE> ComplexScalarMatrix;
+    typedef boost::numeric::ublas::triangular_matrix<KRATOS_COMPLEX_TYPE> ComplexTriangularMatrix;
+    typedef boost::numeric::ublas::symmetric_matrix<KRATOS_COMPLEX_TYPE> ComplexSymmetricMatrix;
+    typedef boost::numeric::ublas::hermitian_matrix<KRATOS_COMPLEX_TYPE> ComplexHermitianMatrix;
+    typedef boost::numeric::ublas::banded_matrix<KRATOS_COMPLEX_TYPE> ComplexBandedMatrix;
+    typedef boost::numeric::ublas::mapped_matrix<KRATOS_COMPLEX_TYPE> ComplexSparseMatrix;
+    typedef boost::numeric::ublas::coordinate_matrix<KRATOS_COMPLEX_TYPE> ComplexCoordinateMatrix;
+    typedef boost::numeric::ublas::compressed_matrix<KRATOS_COMPLEX_TYPE> ComplexCompressedMatrix;
+    typedef boost::numeric::ublas::matrix_column<ComplexMatrix> ComplexMatrixColumn;
+    typedef boost::numeric::ublas::matrix_vector_range<ComplexMatrix> ComplexMatrixVectorRange;
+    typedef boost::numeric::ublas::matrix_vector_slice<ComplexMatrix> ComplexMatrixVectorSlice;
+    typedef boost::numeric::ublas::matrix_range<ComplexMatrix> ComplexMatrixRange;
+    typedef boost::numeric::ublas::matrix_slice<ComplexMatrix> ComplexMatrixSlice;
 
     // declare namespace usage to avoid downstream explosion of compilation errors
     using namespace boost::numeric::ublas;

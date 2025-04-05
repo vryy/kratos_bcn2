@@ -98,6 +98,8 @@ public:
 
     typedef Communicator BaseType;
 
+    typedef BaseType::DataType DataType;
+
     typedef BaseType::IndexType IndexType;
 
     typedef BaseType::SizeType SizeType;
@@ -299,10 +301,20 @@ public:
         return true;
     }
 
-    bool SumAll(double& rValue) const override
+    bool SumAll(DataType& rValue) const override
     {
-        double local_value = rValue;
-        MPI_Allreduce(&local_value, &rValue, 1, MPI_DOUBLE, MPI_SUM, mComm);
+        if constexpr (std::is_same<DataType, float>::value)
+        {
+            float local_value = rValue;
+            MPI_Allreduce(&local_value, &rValue, 1, MPI_FLOAT, MPI_SUM, mComm);
+        }
+        else if constexpr (std::is_same<DataType, double>::value)
+        {
+            double local_value = rValue;
+            MPI_Allreduce(&local_value, &rValue, 1, MPI_DOUBLE, MPI_SUM, mComm);
+        }
+        else
+            KRATOS_ERROR << "SumAll for this data type is not supported";
         return true;
     }
 
@@ -313,10 +325,20 @@ public:
         return true;
     }
 
-    bool MinAll(double& rValue) const override
+    bool MinAll(DataType& rValue) const override
     {
-        double local_value = rValue;
-        MPI_Allreduce(&local_value, &rValue, 1, MPI_DOUBLE, MPI_MIN, mComm);
+        if constexpr (std::is_same<DataType, float>::value)
+        {
+            float local_value = rValue;
+            MPI_Allreduce(&local_value, &rValue, 1, MPI_FLOAT, MPI_MIN, mComm);
+        }
+        else if constexpr (std::is_same<DataType, double>::value)
+        {
+            double local_value = rValue;
+            MPI_Allreduce(&local_value, &rValue, 1, MPI_DOUBLE, MPI_MIN, mComm);
+        }
+        else
+            KRATOS_ERROR << "MinAll for this data type is not supported";
         return true;
     }
 
@@ -327,14 +349,33 @@ public:
         return true;
     }
 
+    bool MaxAll(IndexType& rValue) const override
+    {
+        if constexpr (std::is_same<IndexType, int>::value)
+        {
+            int local_value = rValue;
+            MPI_Allreduce(&local_value, &rValue, 1, MPI_INT, MPI_MAX, mComm);
+        }
+        else if constexpr (std::is_same<IndexType, unsigned long>::value)
+        {
+            unsigned long local_value = rValue;
+            MPI_Allreduce(&local_value, &rValue, 1, MPI_UNSIGNED_LONG, MPI_MAX, mComm);
+        }
+        else
+            KRATOS_ERROR << "MaxAll for this data type is not supported";
+        return true;
+    }
+
+#ifdef _MSC_VER
     bool MaxAll(unsigned long& rValue) const override
     {
         unsigned long local_value = rValue;
         MPI_Allreduce(&local_value, &rValue, 1, MPI_UNSIGNED_LONG, MPI_MAX, mComm);
         return true;
     }
+#endif
 
-    bool MaxAll(double& rValue) const override
+    bool MaxAll(DataType& rValue) const override
     {
         double local_value = rValue;
         MPI_Allreduce(&local_value, &rValue, 1, MPI_DOUBLE, MPI_MAX, mComm);

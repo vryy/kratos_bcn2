@@ -601,6 +601,7 @@ public:
         return true;
     }
 
+#ifdef _MSC_VER
     virtual bool MaxAll(unsigned long& rValue) const
     {
         /*#if defined(KRATOS_USING_MPI )
@@ -608,6 +609,7 @@ public:
         #endif*/
         return true;
     }
+#endif
 
     virtual bool MaxAll(DataType& rValue) const
     {
